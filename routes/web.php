@@ -21,8 +21,8 @@ Route::get('/setup-database', function() {
         }
         
         return "Database migration and seeding completed successfully! <a href='/'>Go to Home</a>";
-    } catch (\Exception $e) {
-        return "Error setting up database: " . $e->getMessage();
+    } catch (\Throwable $e) {
+        return "Error setting up database: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine();
     }
 });
 
