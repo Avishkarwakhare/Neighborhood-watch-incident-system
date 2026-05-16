@@ -11,6 +11,21 @@ use App\Http\Controllers\Admin;
 
 Route::get('/', [HomeController::class,'index'])->name('home');
 
+Route::get('/setup-database', function() {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        
+        // Only seed if no users exist to prevent duplication
+        if (\App\Models\User::count() === 0) {
+            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        }
+        
+        return "Database migration and seeding completed successfully! <a href='/'>Go to Home</a>";
+    } catch (\Exception $e) {
+        return "Error setting up database: " . $e->getMessage();
+    }
+});
+
 require __DIR__.'/auth.php';
 
 Route::middleware('auth')->group(function(){
