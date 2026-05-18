@@ -842,8 +842,8 @@
         <div class="contact-card">
             <i class="ti ti-phone-call" style="color:#C94040; font-size:36px; margin-bottom:12px; display:block;"></i>
             <div style="font-size:14px; font-weight:600; margin-bottom:4px;">Police Control</div>
-            <div style="font-family:'JetBrains Mono', monospace; font-size:15px; font-weight:600; color:var(--color-text-secondary); margin-bottom:16px;">0181-2222220</div>
-            <a href="tel:01812222220" style="display:block; width:100%; padding:10px; background:rgba(201,64,64,0.1); color:#C94040; border-radius:8px; font-weight:600; text-decoration:none;">Call</a>
+            <div style="font-family:'JetBrains Mono', monospace; font-size:15px; font-weight:600; color:var(--color-text-secondary); margin-bottom:16px;">100</div>
+            <a href="tel:100" style="display:block; width:100%; padding:10px; background:rgba(201,64,64,0.1); color:#C94040; border-radius:8px; font-weight:600; text-decoration:none;">Call</a>
         </div>
         <div class="contact-card">
             <i class="ti ti-flame" style="color:#E8A030; font-size:36px; margin-bottom:12px; display:block;"></i>

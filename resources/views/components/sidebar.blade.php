@@ -7,9 +7,9 @@
            style="text-decoration:none; border-radius: 6px; {{ request()->routeIs('admin.dashboard') ? 'border-left: 4px solid var(--color-terracotta);' : '' }}">
            Dashboard
         </a>
-        <a href="{{ route('admin.incidents.index') }}" 
-           class="p-3 block text-cream {{ request()->routeIs('admin.incidents.*') ? 'bg-charcoal' : 'hover:bg-charcoal' }}" 
-           style="text-decoration:none; border-radius: 6px; {{ request()->routeIs('admin.incidents.*') ? 'border-left: 4px solid var(--color-terracotta);' : '' }}">
+        <a href="{{ route('incidents.index') }}" 
+           class="p-3 block text-cream {{ request()->routeIs('incidents.*') ? 'bg-charcoal' : 'hover:bg-charcoal' }}" 
+           style="text-decoration:none; border-radius: 6px; {{ request()->routeIs('incidents.*') ? 'border-left: 4px solid var(--color-terracotta);' : '' }}">
            Incidents
         </a>
         <a href="{{ route('admin.users.index') }}" 

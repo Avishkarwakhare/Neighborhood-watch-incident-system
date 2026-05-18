@@ -20,8 +20,8 @@
                         <i class="ti ti-moon" id="theme-icon" style="font-size: 20px;"></i>
                     </button>
 
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="flex items-center gap-3 cursor-pointer p-1" style="background: transparent; border: none; color: inherit; border-radius: 30px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                    <div class="relative" style="position: relative;">
+                        <button id="profile-menu-button" class="flex items-center gap-3 cursor-pointer p-1" style="background: transparent; border: none; color: inherit; border-radius: 30px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
                             @if(auth()->user()->avatar)
                                 <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);">
                             @else
@@ -38,7 +38,7 @@
                             <i class="ti ti-chevron-down" style="font-size: 16px; opacity: 0.7; margin-right: 0.25rem;"></i>
                         </button>
                         
-                        <div x-show="open" @click.away="open = false" x-transition style="display:none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; background: var(--bg-card, #ffffff); color: var(--color-text-primary, #2A2E35); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 0.5rem; min-width: 200px; z-index: 50; border: 1px solid var(--color-border-tertiary);">
+                        <div id="profile-menu-dropdown" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; background: var(--bg-card, #ffffff); color: var(--color-text-primary, #2A2E35); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 0.5rem; min-width: 200px; z-index: 50; border: 1px solid var(--color-border-tertiary);">
                             <a href="{{ route('incidents.my') }}" class="block p-2 hover:bg-sand" style="text-decoration:none; color:inherit; font-size:14px; border-radius:4px; font-weight: 500;"><i class="ti ti-history" style="margin-right:8px; opacity:0.7;"></i> My Incident History</a>
                             @can('admin-access')
                                 <a href="{{ route('admin.dashboard') }}" class="block p-2 hover:bg-sand" style="text-decoration:none; color:inherit; font-size:14px; border-radius:4px; font-weight: 500;"><i class="ti ti-dashboard" style="margin-right:8px; opacity:0.7;"></i> Admin Panel</a>
@@ -50,6 +50,27 @@
                             </form>
                         </div>
                     </div>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const btn = document.getElementById('profile-menu-button');
+                            const dropdown = document.getElementById('profile-menu-dropdown');
+                            
+                            if (btn && dropdown) {
+                                btn.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    const isHidden = dropdown.style.display === 'none';
+                                    dropdown.style.display = isHidden ? 'block' : 'none';
+                                });
+                                
+                                document.addEventListener('click', function(e) {
+                                    if (!dropdown.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+                                        dropdown.style.display = 'none';
+                                    }
+                                });
+                            }
+                        });
+                    </script>
                 </div>
             @else
                 <a href="{{ route('login') }}" style="color: inherit; text-decoration:none; font-weight: 500;">Log in</a>

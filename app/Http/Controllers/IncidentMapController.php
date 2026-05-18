@@ -14,7 +14,8 @@ class IncidentMapController extends Controller
 
     public function mapData(Request $request)
     {
-        $query = Incident::whereNotNull('lat')->whereNotNull('lng');
+        $query = Incident::whereNotNull('latitude')->whereNotNull('longitude')
+            ->select('*', 'latitude as lat', 'longitude as lng');
         
         if ($request->filled('categories')) {
             $query->whereIn('category', $request->categories);

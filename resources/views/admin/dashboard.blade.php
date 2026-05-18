@@ -35,7 +35,9 @@
         <!-- Chart placeholder - Chart.js initialized via Alpine or vanilla -->
         <div class="bg-white p-6 rounded-xl border border-sand shadow-sm">
             <h3 class="font-heading text-navy text-xl mb-4">Incidents by Category</h3>
-            <canvas id="categoryChart" height="250"></canvas>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="categoryChart"></canvas>
+            </div>
         </div>
         
         <div class="bg-white p-6 rounded-xl border border-sand shadow-sm">

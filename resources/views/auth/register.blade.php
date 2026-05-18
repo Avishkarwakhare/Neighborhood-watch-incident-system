@@ -45,6 +45,8 @@
             selectedCity: '{{ old('city_id') }}',
             selectedLocality: '{{ old('locality_id') }}',
             selectedSociety: '{{ old('society_id') }}',
+            customLocality: '{{ old('custom_locality') }}',
+            customSociety: '{{ old('custom_society') }}',
             houseNo: '{{ old('house_no') }}',
             cities: [],
             localities: [],
@@ -78,7 +80,7 @@
             },
             loadSocieties() {
                 this.societies = [];
-                if (!this.selectedLocality) return;
+                if (!this.selectedLocality || this.selectedLocality === 'other') return;
                 fetch('/api/localities/' + this.selectedLocality + '/societies')
                     .then(r => r.json())
                     .then(data => {
@@ -91,13 +93,25 @@
             get previewAddress() {
                 let parts = [];
                 if (this.houseNo) parts.push(this.houseNo);
-                let soc = this.societies.find(s => s.id == this.selectedSociety);
-                let loc = this.localities.find(l => l.id == this.selectedLocality);
+                
+                let socName = this.selectedSociety === 'other' ? this.customSociety : '';
+                if (!socName && this.selectedSociety !== 'other') {
+                    let soc = this.societies.find(s => s.id == this.selectedSociety);
+                    socName = soc ? soc.name : '';
+                }
+                
+                let locName = this.selectedLocality === 'other' ? this.customLocality : '';
+                if (!locName && this.selectedLocality !== 'other') {
+                    let loc = this.localities.find(l => l.id == this.selectedLocality);
+                    locName = loc ? loc.name : '';
+                }
+                
                 let cit = this.cities.find(c => c.id == this.selectedCity);
-                if (soc) parts.push(soc.name);
-                if (loc) parts.push(loc.name);
+                
+                if (socName) parts.push(socName);
+                if (locName) parts.push(locName);
                 if (cit) parts.push(cit.name);
-                // State name is hardcoded to Punjab here if we don't pass the states array, but let's just append something generic if not loaded
+                
                 let stateSelect = document.querySelector('select[name=\'state_id\']');
                 if (stateSelect && stateSelect.options[stateSelect.selectedIndex]) {
                     let stateName = stateSelect.options[stateSelect.selectedIndex].text;
@@ -105,8 +119,6 @@
                         parts.push(stateName);
                     }
                 }
-                if (soc && soc.pincode) 
-                    parts[parts.length-1] += ' - ' + soc.pincode;
                 return parts.join(', ') || 'Fill in the fields above...';
             },
             init() {
@@ -145,20 +157,28 @@
             <div class="mb-4" x-show="selectedCity" x-transition x-cloak>
                 <x-input-label for="locality_id" :value="__('Locality / Area')" />
                 <p class="text-xs text-gray-500 mb-1">The main area or sector of the city</p>
-                <select name="locality_id" id="locality_id" x-model="selectedLocality" @change="selectedSociety=''; loadSocieties()" :disabled="localities.length === 0" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" required>
+                <select name="locality_id" id="locality_id" x-model="selectedLocality" @change="selectedSociety=''; if(selectedLocality === 'other') { selectedSociety = 'other' }; loadSocieties()" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" required>
                     <option value="">— Select Locality —</option>
                     <template x-for="loc in localities" :key="loc.id">
                         <option :value="loc.id" x-text="loc.name"></option>
                     </template>
+                    <option value="other">Other / Add Manually</option>
                 </select>
                 <x-input-error :messages="$errors->get('locality_id')" class="mt-2" />
             </div>
 
+            <!-- Custom Locality Input -->
+            <div class="mb-4" x-show="selectedLocality === 'other'" x-transition x-cloak>
+                <x-input-label for="custom_locality" :value="__('Type Locality / Area Name')" />
+                <x-text-input id="custom_locality" x-model="customLocality" class="block mt-1 w-full" type="text" name="custom_locality" placeholder="e.g. Model Town Phase 2, Civil Lines Area" ::required="selectedLocality === 'other'" />
+                <x-input-error :messages="$errors->get('custom_locality')" class="mt-2" />
+            </div>
+
             <!-- Society -->
-            <div class="mb-4" x-show="selectedLocality" x-transition x-cloak>
+            <div class="mb-4" x-show="selectedLocality && selectedLocality !== 'other'" x-transition x-cloak>
                 <x-input-label for="society_id" :value="__('Society / Colony')" />
                 <p class="text-xs text-gray-500 mb-1">Your specific residential society, colony, block or phase</p>
-                <select name="society_id" id="society_id" x-model="selectedSociety" :disabled="societies.length === 0" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" required>
+                <select name="society_id" id="society_id" x-model="selectedSociety" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" ::required="selectedLocality && selectedLocality !== 'other'">
                     <option value="">— Select Society —</option>
                     <template x-for="soc in societies" :key="soc.id">
                         <option :value="soc.id">
@@ -166,10 +186,11 @@
                             <template x-if="soc.landmark"><span> &middot; <span x-text="soc.landmark"></span></span></template>
                         </option>
                     </template>
+                    <option value="other">Other / Add Manually</option>
                 </select>
                 <x-input-error :messages="$errors->get('society_id')" class="mt-2" />
                 
-                <div class="mt-2" x-show="selectedSociety">
+                <div class="mt-2" x-show="selectedSociety && selectedSociety !== 'other'">
                     <template x-if="societies.find(s => s.id == selectedSociety)">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize"
                             :class="{
@@ -184,6 +205,13 @@
                         </span>
                     </template>
                 </div>
+            </div>
+
+            <!-- Custom Society Input -->
+            <div class="mb-4" x-show="selectedSociety === 'other' || selectedLocality === 'other'" x-transition x-cloak>
+                <x-input-label for="custom_society" :value="__('Type Society / Colony / Block Name')" />
+                <x-text-input id="custom_society" x-model="customSociety" class="block mt-1 w-full" type="text" name="custom_society" placeholder="e.g. Green Valley Colony, Sector 4 Block B" ::required="selectedSociety === 'other' || selectedLocality === 'other'" />
+                <x-input-error :messages="$errors->get('custom_society')" class="mt-2" />
             </div>
 
             <!-- House No -->

@@ -10,6 +10,12 @@
     <link href="https://fonts.bunny.net/css?family=caveat:400,600,700|inter:400,500,600|jetbrains-mono:400" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+    <!-- Tailwind CSS (for Admin layout classes) -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
@@ -29,7 +35,12 @@
                 <div class="font-heading text-navy" style="font-size: 1.5rem;">Admin Panel</div>
                 <div class="flex items-center gap-4">
                     <span>{{ auth()->user()->name }}</span>
-                    <a href="{{ route('dashboard') }}" class="btn-secondary" style="padding: 0.5rem 1rem;">Exit Admin</a>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="btn-secondary" style="padding: 0.5rem 1rem; cursor: pointer; background: transparent;">
+                            Exit Admin
+                        </button>
+                    </form>
                 </div>
             </header>
             

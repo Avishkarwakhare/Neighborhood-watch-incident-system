@@ -319,16 +319,16 @@
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                         @foreach($incident->incidentMedia as $media)
                             @if($media->media_type === 'image')
-                                <a href="{{ Storage::url($media->file_path) }}" target="_blank" class="block bg-sand rounded-lg overflow-hidden border border-sand" style="height: 150px;">
-                                    <img src="{{ Storage::url($media->file_path) }}" alt="Incident Media" class="w-full h-full object-cover">
+                                <a href="{{ Storage::url($media->file_path) }}" target="_blank" style="display: block; height: 150px; overflow: hidden; border-radius: 8px; max-width: 100%; position: relative;">
+                                    <img src="{{ Storage::url($media->file_path) }}" alt="Incident Media" style="width: 100%; height: 100%; object-fit: cover;">
                                 </a>
                             @elseif($media->media_type === 'video')
-                                <div class="bg-charcoal rounded-lg overflow-hidden border border-sand flex items-center justify-center relative" style="height: 150px;">
-                                    <video src="{{ Storage::url($media->file_path) }}" class="w-full h-full object-cover opacity-50"></video>
-                                    <div class="absolute inset-0 flex items-center justify-center">
+                                <div style="display: block; height: 150px; overflow: hidden; border-radius: 8px; max-width: 100%; position: relative; background: #222;">
+                                    <video src="{{ Storage::url($media->file_path) }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.5;"></video>
+                                    <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                                     </div>
-                                    <a href="{{ Storage::url($media->file_path) }}" target="_blank" class="absolute inset-0 z-10"></a>
+                                    <a href="{{ Storage::url($media->file_path) }}" target="_blank" style="position: absolute; inset: 0; z-index: 10;"></a>
                                 </div>
                             @endif
                         @endforeach

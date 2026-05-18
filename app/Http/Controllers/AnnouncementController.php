@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Announcement;
+use App\Models\User;
 use App\Http\Requests\StoreAnnouncementRequest;
 use App\Events\EmergencyAnnouncementPosted;
+use App\Notifications\AnnouncementPostedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Notification;
 
 class AnnouncementController extends Controller
 {
@@ -19,7 +22,12 @@ class AnnouncementController extends Controller
         $query = Announcement::active()->latest();
         
         if (!$user->hasRole('admin') && $user->zone_id) {
-            $query->where('zone_id', $user->zone_id);
+            $query->where(function ($q) use ($user) {
+                $q->where('zone_id', $user->zone_id)
+                  ->orWhereHas('user', function ($qu) {
+                      $qu->where('role', 'admin');
+                  });
+            });
         }
 
         $announcements = $query->paginate(10);
@@ -42,6 +50,25 @@ class AnnouncementController extends Controller
         $data['zone_id'] = $request->user()->zone_id;
 
         $announcement = Announcement::create($data);
+
+        // Notify users
+        $creator = $request->user();
+        if ($creator->hasRole('admin')) {
+            // Admin: Notify ALL approved users globally
+            $users = User::where('is_approved', true)
+                ->where('id', '!=', $creator->id)
+                ->get();
+        } else {
+            // Warden: Notify approved users in the specific zone
+            $users = User::where('zone_id', $announcement->zone_id)
+                ->where('is_approved', true)
+                ->where('id', '!=', $creator->id)
+                ->get();
+        }
+
+        if ($users->isNotEmpty()) {
+            Notification::send($users, new AnnouncementPostedNotification($announcement));
+        }
 
         if ($announcement->priority === 'emergency') {
             event(new EmergencyAnnouncementPosted($announcement));

@@ -68,7 +68,12 @@ class DashboardController extends Controller
             'url'   => route('incidents.show',$i),
           ])
           ->merge(
-            Announcement::where('zone_id',$user->zone_id)
+            Announcement::where(function($q) use ($user) {
+                $q->where('zone_id', $user->zone_id)
+                  ->orWhereHas('user', function($qu) {
+                      $qu->where('role', 'admin');
+                  });
+            })
             ->latest()->take(3)->get()
             ->map(fn($a) => [
               'type'     => 'announcement',
@@ -121,7 +126,7 @@ class DashboardController extends Controller
         // Safety tip of the day
         $tips = [
           'Lock your vehicle even for 2 minutes. Most thefts in Jalandhar happen near markets.',
-          'Keep emergency numbers saved. Police control: 0181-2222220, Ambulance: 108.',
+          'Keep emergency numbers saved. Police control: 100, Ambulance: 108.',
           'Report street light issues to MC helpline. Dark streets attract crime.',
           'Do not share your home address publicly on social media when traveling.',
           'Check on elderly neighbors during summer. Heat stroke is a serious risk.',
@@ -160,17 +165,25 @@ class DashboardController extends Controller
           ->get();
 
         // Announcements for sidebar
-        $announcements = Announcement::where('zone_id',
-          $user->zone_id)
-          ->active()
+        $announcements = Announcement::active()
+          ->where(function($q) use ($user) {
+              $q->where('zone_id', $user->zone_id)
+                ->orWhereHas('user', function($qu) {
+                    $qu->where('role', 'admin');
+                });
+          })
           ->latest()
           ->take(4)
           ->get();
 
         // Emergency announcements
-        $emergencyAnnouncement = Announcement::where(
-          'zone_id', $user->zone_id)
-          ->where('priority','emergency')
+        $emergencyAnnouncement = Announcement::where('priority','emergency')
+          ->where(function($q) use ($user) {
+              $q->where('zone_id', $user->zone_id)
+                ->orWhereHas('user', function($qu) {
+                    $qu->where('role', 'admin');
+                });
+          })
           ->active()
           ->latest()
           ->first();
@@ -178,13 +191,13 @@ class DashboardController extends Controller
         // Incidents for mini map
         $mapIncidents = Incident::where('zone_id',
           $user->zone_id)
-          ->whereNotNull('lat')
-          ->whereNotNull('lng')
+          ->whereNotNull('latitude')
+          ->whereNotNull('longitude')
           ->whereIn('status',['pending','processing', 'verified'])
           ->latest()
           ->take(20)
           ->get(['id','title','severity',
-                 'status','lat','lng']);
+                 'status','latitude as lat','longitude as lng']);
 
         return view('dashboard', compact(
           'user','openIncidents','resolvedThisWeek',
